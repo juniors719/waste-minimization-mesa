@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "waste-minimization-mesa"
+version = "0.1.0"
+description = "Mesa simulation for waste minimization in retail"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "mesa>=3.0",
+  "sqlmodel>=0.0.22",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
