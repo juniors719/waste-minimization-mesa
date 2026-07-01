@@ -4,12 +4,29 @@ from waste_minimization_mesa.model import run_scenario
 def plot_black_and_white():
     # 1. Executa os cenários programaticamente
     control = run_scenario(
-        name="Sem Desconto", days=30, db_url="sqlite:///grafico_control.db", 
-        num_consumers=20, pricing_enabled=False, seed=42
+        name="Sem Desconto",
+        days=40,
+        db_url="sqlite:///grafico_control.db",
+        num_consumers=80,
+        pricing_enabled=False,
+        restock_strategy="demand",
+        restock_interval=5,
+        restock_threshold=15,
+        seed=42,
     )
     discounted = run_scenario(
-        name="Com Desconto", days=30, db_url="sqlite:///grafico_discount.db", 
-        num_consumers=20, pricing_enabled=True, seed=42
+        name="Com Desconto",
+        days=40,
+        db_url="sqlite:///grafico_discount.db",
+        num_consumers=80,
+        pricing_enabled=True,
+        fallback_pricing_enabled=True,
+        minimum_margin=0.08,
+        rsl_reference=8,
+        restock_strategy="demand",
+        restock_interval=5,
+        restock_threshold=15,
+        seed=42,
     )
 
     # 2. Extrai os dados
