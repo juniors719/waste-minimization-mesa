@@ -11,7 +11,7 @@ from .model import RetailModel, run_scenario, summarize_metrics
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run the waste minimization simulation.")
     parser.add_argument("--days", type=int, default=10, help="Number of simulated days.")
-    parser.add_argument("--consumers", type=int, default=10, help="Number of consumer agents.")
+    parser.add_argument("--consumers", type=int, default=80, help="Number of consumer agents.")
     parser.add_argument(
         "--restock-strategy",
         choices=("fixed", "demand"),
@@ -85,6 +85,9 @@ def main() -> int:
             db_url=_db_url_for("com_desconto"),
             num_consumers=args.consumers,
             pricing_enabled=True,
+            fallback_pricing_enabled=True,
+            minimum_margin=0.08,
+            rsl_reference=8,
             restock_strategy=args.restock_strategy,
             restock_interval=args.restock_interval,
             restock_threshold=args.restock_threshold,

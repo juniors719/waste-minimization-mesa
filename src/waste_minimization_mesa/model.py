@@ -33,7 +33,43 @@ DEFAULT_RESTOCK_CATALOG = (
         "preco_original": 6.90,
         "preco_atual": 6.90,
         "custo_unitario": 4.15,
-        "estoque": 20,
+        "estoque": 6,
+    },
+    {
+        "nome": "Leite integral",
+        "categoria": "perecivel",
+        "rsl": 8,
+        "preco_original": 5.00,
+        "preco_atual": 5.00,
+        "custo_unitario": 3.00,
+        "estoque": 8,
+    },
+    {
+        "nome": "Queijo Minas Frescal",
+        "categoria": "perecivel",
+        "rsl": 5,
+        "preco_original": 25.00,
+        "preco_atual": 25.00,
+        "custo_unitario": 15.00,
+        "estoque": 5,
+    },
+    {
+        "nome": "Frango Desossado",
+        "categoria": "perecivel",
+        "rsl": 3,
+        "preco_original": 18.00,
+        "preco_atual": 18.00,
+        "custo_unitario": 10.80,
+        "estoque": 4,
+    },
+    {
+        "nome": "Ovos Grandes",
+        "categoria": "perecivel",
+        "rsl": 14,
+        "preco_original": 10.00,
+        "preco_atual": 10.00,
+        "custo_unitario": 6.00,
+        "estoque": 10,
     },
     {
         "nome": "Pao de forma",
@@ -42,7 +78,43 @@ DEFAULT_RESTOCK_CATALOG = (
         "preco_original": 8.50,
         "preco_atual": 8.50,
         "custo_unitario": 5.10,
-        "estoque": 15,
+        "estoque": 5,
+    },
+    {
+        "nome": "Bolo de Cenoura",
+        "categoria": "padaria",
+        "rsl": 3,
+        "preco_original": 12.00,
+        "preco_atual": 12.00,
+        "custo_unitario": 7.20,
+        "estoque": 4,
+    },
+    {
+        "nome": "Sonho de Creme",
+        "categoria": "padaria",
+        "rsl": 2,
+        "preco_original": 7.50,
+        "preco_atual": 7.50,
+        "custo_unitario": 4.50,
+        "estoque": 3,
+    },
+    {
+        "nome": "Broa de Milho",
+        "categoria": "padaria",
+        "rsl": 4,
+        "preco_original": 6.00,
+        "preco_atual": 6.00,
+        "custo_unitario": 3.60,
+        "estoque": 4,
+    },
+    {
+        "nome": "Pao Integral",
+        "categoria": "padaria",
+        "rsl": 8,
+        "preco_original": 9.90,
+        "preco_atual": 9.90,
+        "custo_unitario": 5.95,
+        "estoque": 6,
     },
     {
         "nome": "Salada pronta",
@@ -51,7 +123,43 @@ DEFAULT_RESTOCK_CATALOG = (
         "preco_original": 14.90,
         "preco_atual": 14.90,
         "custo_unitario": 8.95,
-        "estoque": 10,
+        "estoque": 4,
+    },
+    {
+        "nome": "Suco verde",
+        "categoria": "saudavel",
+        "rsl": 5,
+        "preco_original": 9.90,
+        "preco_atual": 9.90,
+        "custo_unitario": 5.95,
+        "estoque": 5,
+    },
+    {
+        "nome": "Mix de Castanhas",
+        "categoria": "saudavel",
+        "rsl": 60,
+        "preco_original": 19.90,
+        "preco_atual": 19.90,
+        "custo_unitario": 11.95,
+        "estoque": 6,
+    },
+    {
+        "nome": "Barra de Cereal Integral",
+        "categoria": "saudavel",
+        "rsl": 90,
+        "preco_original": 4.50,
+        "preco_atual": 4.50,
+        "custo_unitario": 2.70,
+        "estoque": 8,
+    },
+    {
+        "nome": "Água de Coco",
+        "categoria": "saudavel",
+        "rsl": 30,
+        "preco_original": 6.00,
+        "preco_atual": 6.00,
+        "custo_unitario": 3.60,
+        "estoque": 6,
     },
 )
 
@@ -92,7 +200,7 @@ class RetailModel(ModelBase):  # type: ignore[misc]
     def __init__(
         self,
         db_url: str = "sqlite:///varejo_simulacao.db",
-        num_consumers: int = 10,
+        num_consumers: int = 80,
         critical_rsl: int = 3,
         minimum_margin: float = 0.10,
         rsl_reference: int = 6,
@@ -102,6 +210,7 @@ class RetailModel(ModelBase):  # type: ignore[misc]
         restock_strategy: str = "demand",
         restock_interval: int = 5,
         restock_threshold: int = 15,
+        restock_lead_time: int = 2,
         seed: int | None = None,
     ):
         if mesa is not None:
@@ -119,12 +228,14 @@ class RetailModel(ModelBase):  # type: ignore[misc]
         self.restock_strategy = restock_strategy
         self.restock_interval = restock_interval
         self.restock_threshold = restock_threshold
+        self.restock_lead_time = max(1, restock_lead_time)
         self.restock_enabled = True
         self.current_tick = 0
         self.restock_events = 0
         self.market_snapshot: dict[str, float | int] = {}
         self.sales_window: dict[str, int] = {}
         self.critical_product_ids: list[int] = []
+        self._pending_restock_orders: list[tuple[int, list[dict[str, float | int | str]]]] = []
         self._daily_sales = Counter()
         self._sales_history: Deque[Counter] = deque(maxlen=5)
         self._last_expired_units = 0
@@ -201,6 +312,44 @@ class RetailModel(ModelBase):  # type: ignore[misc]
             stock_by_name[product.nome] = stock_by_name.get(product.nome, 0) + product.estoque
         return stock_by_name
 
+    def _pending_stock_by_name(self) -> dict[str, int]:
+        pending_stock: Counter[str] = Counter()
+        for _, items in self._pending_restock_orders:
+            for item in items:
+                pending_stock[str(item["nome"])] += int(item["estoque"])
+        return dict(pending_stock)
+
+    def daily_demand_multiplier(self) -> float:
+        day_pattern = (0.8, 0.9, 1.0, 1.1, 1.3, 1.6, 1.2)
+        return day_pattern[self.current_tick % len(day_pattern)]
+
+    def schedule_restock_order(self, restock_plan: list[dict]) -> None:
+        arrival_tick = self.current_tick + self.restock_lead_time
+        self._pending_restock_orders.append((arrival_tick, restock_plan))
+
+    def process_pending_restock_orders(self) -> None:
+        if not self._pending_restock_orders:
+            return
+
+        due_orders = [order for order in self._pending_restock_orders if order[0] <= self.current_tick]
+        if not due_orders:
+            return
+
+        remaining_orders = [order for order in self._pending_restock_orders if order[0] > self.current_tick]
+        with Session(self.engine) as session:
+            for _, restock_plan in due_orders:
+                session.add_all(Product(**item) for item in restock_plan)
+            session.commit()
+
+        for _, restock_plan in due_orders:
+            self.restock_events += 1
+            print(
+                f"\n[Fornecedor] Novos lotes chegaram no tick {self.current_tick} "
+                f"(pedido #{self.restock_events})."
+            )
+
+        self._pending_restock_orders = remaining_orders
+
     def should_restock_today(self) -> bool:
         if self.current_tick <= 0:
             return False
@@ -209,34 +358,39 @@ class RetailModel(ModelBase):  # type: ignore[misc]
         if self.restock_strategy == "fixed":
             return due_by_interval
 
-        snapshot = self.market_snapshot or self.collect_market_snapshot()
-        low_stock = int(snapshot["total_stock"]) <= self.restock_threshold
-        return due_by_interval or low_stock
+        stock_by_name = self._current_stock_by_name()
+        pending_by_name = self._pending_stock_by_name()
+        for template in DEFAULT_RESTOCK_CATALOG:
+            current_stock = stock_by_name.get(template["nome"], 0) + pending_by_name.get(template["nome"], 0)
+            target_stock = max(2, int(template["estoque"] * 0.6))
+            if current_stock <= target_stock:
+                return True
+
+        return due_by_interval
 
     def build_restock_plan(self) -> list[dict]:
         snapshot = self.market_snapshot or self.collect_market_snapshot()
         sales_window = self.sales_window or self.collect_sales_window(days=5)
         stock_by_name = self._current_stock_by_name()
+        pending_by_name = self._pending_stock_by_name()
         average_rsl = float(snapshot["average_rsl"])
         freshness_gap = max(0.0, float(self.rsl_reference) - average_rsl)
-        demand_factor = 1.0 if self.restock_strategy == "fixed" else 1.6
-        low_stock_bonus = 1.0 if int(snapshot["total_stock"]) <= self.restock_threshold else 0.0
+        window_days = max(1, len(self._sales_history) or 5)
 
         plan: list[dict] = []
         for template in DEFAULT_RESTOCK_CATALOG:
             recent_sales = sales_window.get(template["nome"], 0)
-            current_stock = stock_by_name.get(template["nome"], 0)
+            current_stock = stock_by_name.get(template["nome"], 0) + pending_by_name.get(template["nome"], 0)
             base_quantity = int(template["estoque"])
+            safety_stock = max(2, int(round(base_quantity * 0.5)))
+            expected_daily_sales = recent_sales / window_days
 
             if self.restock_strategy == "fixed":
                 quantity = base_quantity
             else:
-                target = base_quantity
-                target += int(recent_sales * 2 * demand_factor)
-                target += int(freshness_gap * 1.5)
-                target += int(low_stock_bonus * base_quantity * 0.5)
-                target = max(target, base_quantity)
-                quantity = max(0, target - current_stock)
+                target_stock = expected_daily_sales * self.restock_lead_time + safety_stock + freshness_gap * 0.5
+                target_stock = max(float(base_quantity), target_stock)
+                quantity = max(0, int(round(target_stock - current_stock)))
 
             if quantity <= 0:
                 continue
@@ -296,6 +450,8 @@ class RetailModel(ModelBase):  # type: ignore[misc]
 
         expired = self._age_products()
         self._last_expired_units = expired
+
+        self.process_pending_restock_orders()
 
         self.analysis_agent.step()
         self.supplier_agent.step()
@@ -374,6 +530,10 @@ def run_scenario(
     db_url: str,
     num_consumers: int,
     pricing_enabled: bool,
+    fallback_pricing_enabled: bool = False,
+    minimum_margin: float = 0.10,
+    rsl_reference: int = 6,
+    restock_lead_time: int = 2,
     seed: int | None = None,
     restock_strategy: str = "demand",
     restock_interval: int = 5,
@@ -384,7 +544,11 @@ def run_scenario(
     model = RetailModel(
         db_url=db_url,
         num_consumers=num_consumers,
+        minimum_margin=minimum_margin,
+        rsl_reference=rsl_reference,
         pricing_enabled=pricing_enabled,
+        fallback_pricing_enabled=fallback_pricing_enabled,
+        restock_lead_time=restock_lead_time,
         restock_strategy=restock_strategy,
         restock_interval=restock_interval,
         restock_threshold=restock_threshold,

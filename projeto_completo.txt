@@ -1,0 +1,1641 @@
+
+
+========================================
+FILE: .\.gitignore
+========================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[codz]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#   Usually these files are written by a python script from a template
+#   before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+# Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+# uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+# poetry.lock
+# poetry.toml
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#   pdm recommends including project-wide configuration in pdm.toml, but excluding .pdm-python.
+#   https://pdm-project.org/en/latest/usage/project/#working-with-version-control
+# pdm.lock
+# pdm.toml
+.pdm-python
+.pdm-build/
+
+# pixi
+#   Similar to Pipfile.lock, it is generally recommended to include pixi.lock in version control.
+# pixi.lock
+#   Pixi creates a virtual environment in the .pixi directory, just like venv module creates one
+#   in the .venv directory. It is recommended not to include this directory in version control.
+.pixi
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# Redis
+*.rdb
+*.aof
+*.pid
+
+# RabbitMQ
+mnesia/
+rabbitmq/
+rabbitmq-data/
+
+# ActiveMQ
+activemq-data/
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#   JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#   be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#   and can be added to the global gitignore or merged into this file.  For a more nuclear
+#   option (not recommended) you can uncomment the following to ignore the entire idea folder.
+# .idea/
+
+# Abstra
+#   Abstra is an AI-powered process automation framework.
+#   Ignore directories containing user credentials, local state, and settings.
+#   Learn more at https://abstra.io/docs
+.abstra/
+
+# Visual Studio Code
+#   Visual Studio Code specific template is maintained in a separate VisualStudioCode.gitignore 
+#   that can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
+#   and can be added to the global gitignore or merged into this file. However, if you prefer, 
+#   you could uncomment the following to ignore the entire vscode folder
+# .vscode/
+# Temporary file for partial code execution
+tempCodeRunnerFile.py
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Marimo
+marimo/_static/
+marimo/_lsp/
+__marimo__/
+
+# Streamlit
+.streamlit/secrets.toml
+
+
+========================================
+FILE: .\comparar_reposicao.py
+========================================
+
+import matplotlib.pyplot as plt
+from waste_minimization_mesa.model import run_scenario
+
+def plot_demand_vs_fixed():
+    print("Executando simulação de Reposição Fixa...")
+    fixa = run_scenario(
+        name="Fixa", days=40, db_url="sqlite:///grafico_fixa.db", 
+        num_consumers=10, pricing_enabled=True, seed=42, restock_strategy="fixed"
+    )
+    
+    print("Executando simulação de Reposição por Demanda...")
+    demanda = run_scenario(
+        name="Demanda", days=40, db_url="sqlite:///grafico_demanda.db", 
+        num_consumers=10, pricing_enabled=True, seed=42, restock_strategy="demand"
+    )
+
+    ticks = [m.tick for m in fixa.metrics]
+    estoque_fixa = [m.total_stock for m in fixa.metrics]
+    estoque_demanda = [m.total_stock for m in demanda.metrics]
+    
+    # Acumulando o desperdício ao longo do tempo para ver o impacto da estratégia
+    desperdicio_fixa_acc = []
+    desperdicio_demanda_acc = []
+    acc_fixa = 0
+    acc_dem = 0
+    
+    for m_f, m_d in zip(fixa.metrics, demanda.metrics):
+        acc_fixa += m_f.waste_units
+        acc_dem += m_d.waste_units
+        desperdicio_fixa_acc.append(acc_fixa)
+        desperdicio_demanda_acc.append(acc_dem)
+
+    # Configuração estrita de Preto e Branco (sem tons de cinza)
+    plt.rcParams['figure.facecolor'] = 'white'
+    plt.rcParams['axes.facecolor'] = 'white'
+    plt.rcParams['axes.edgecolor'] = 'black'
+    plt.rcParams['axes.labelcolor'] = 'black'
+    plt.rcParams['xtick.color'] = 'black'
+    plt.rcParams['ytick.color'] = 'black'
+    plt.rcParams['text.color'] = 'black'
+    
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+
+    # Gráfico 1: Variação de Estoque
+    ax1.plot(ticks, estoque_fixa, color='black', linestyle='-', linewidth=2, label='Reposicao Fixa (A cada 5 dias)')
+    ax1.plot(ticks, estoque_demanda, color='black', linestyle='--', linewidth=2, label='Reposicao por Demanda (Gatilho: <= 15)')
+    ax1.axhline(15, color='black', linestyle=':', linewidth=1, label='Ponto de Pedido (Threshold)')
+    ax1.set_title('Comportamento do Estoque Fisico', fontweight='bold')
+    ax1.set_ylabel('Unidades em Estoque')
+    ax1.legend(edgecolor='black')
+
+    # Gráfico 2: Desperdício Acumulado
+    ax2.plot(ticks, desperdicio_fixa_acc, color='black', linestyle='-', linewidth=2, label='Desperdicio - Fixa')
+    ax2.plot(ticks, desperdicio_demanda_acc, color='black', linestyle='--', linewidth=2, label='Desperdicio - Demanda')
+    ax2.set_title('Desperdicio Acumulado de Pereciveis', fontweight='bold')
+    ax2.set_xlabel('Dias (Ticks de Simulacao)')
+    ax2.set_ylabel('Unidades Descartadas')
+    ax2.legend(edgecolor='black')
+
+    plt.tight_layout()
+    plt.savefig('graficos_estrategias.png', dpi=300, bbox_inches='tight')
+    print("Gráfico 'graficos_estrategias.png' gerado com sucesso!")
+
+if __name__ == "__main__":
+    plot_demand_vs_fixed()
+
+========================================
+FILE: .\com_desconto.db
+========================================
+
+
+
+========================================
+FILE: .\export.py
+========================================
+
+import os
+
+# Arquivos ou pastas que você quer ignorar
+IGNORE_LIST = ['.git', '__pycache__', 'node_modules', '.venv', 'env', 'venv', '.png', '.jpg', '.lock']
+
+with open("projeto_completo.txt", "w", encoding="utf-8") as outfile:
+    for root, dirs, files in os.walk("."):
+        # Filtra pastas ignoradas
+        dirs[:] = [d for d in dirs if d not in IGNORE_LIST]
+        
+        for file in files:
+            if any(file.endswith(ext) for ext in IGNORE_LIST) or file == "projeto_completo.txt":
+                continue
+                
+            file_path = os.path.join(root, file)
+            try:
+                with open(file_path, "r", encoding="utf-8") as infile:
+                    outfile.write(f"\n\n{'='*40}\n")
+                    outfile.write(f"FILE: {file_path}\n")
+                    outfile.write(f"{'='*40}\n\n")
+                    outfile.write(infile.read())
+            except Exception:
+                # Pula arquivos binários ou que deem erro de leitura
+                continue
+print("Arquivo projeto_completo.txt gerado com sucesso!")
+
+========================================
+FILE: .\gerar_graficos.py
+========================================
+
+import matplotlib.pyplot as plt
+from waste_minimization_mesa.model import run_scenario
+
+def plot_black_and_white():
+    # 1. Executa os cenários programaticamente
+    control = run_scenario(
+        name="Sem Desconto", days=30, db_url="sqlite:///grafico_control.db", 
+        num_consumers=20, pricing_enabled=False, seed=42
+    )
+    discounted = run_scenario(
+        name="Com Desconto", days=30, db_url="sqlite:///grafico_discount.db", 
+        num_consumers=20, pricing_enabled=True, seed=42
+    )
+
+    # 2. Extrai os dados
+    ticks = [m.tick for m in control.metrics]
+    
+    estoque_control = [m.total_stock for m in control.metrics]
+    estoque_discount = [m.total_stock for m in discounted.metrics]
+    
+    lucro_control = [m.profit for m in control.metrics]
+    lucro_discount = [m.profit for m in discounted.metrics]
+
+    # 3. Configura a plotagem estrita em Preto e Branco
+    plt.rcParams['figure.facecolor'] = 'white'
+    plt.rcParams['axes.facecolor'] = 'white'
+    plt.rcParams['axes.edgecolor'] = 'black'
+    plt.rcParams['axes.labelcolor'] = 'black'
+    plt.rcParams['xtick.color'] = 'black'
+    plt.rcParams['ytick.color'] = 'black'
+    plt.rcParams['text.color'] = 'black'
+    
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 8))
+
+    # Gráfico 1: Dinâmica de Estoque (Escoamento)
+    # Linha contínua para Controle, Linha tracejada pontilhada para o Multiagente
+    ax1.plot(ticks, estoque_control, color='black', linestyle='-', linewidth=2, label='Cenario Tradicional (Sem IA)')
+    ax1.plot(ticks, estoque_discount, color='black', linestyle='--', linewidth=2, label='Cenario Multiagente (Proativo)')
+    ax1.set_title('Volume de Estoque Fisico ao Longo do Tempo', fontweight='bold')
+    ax1.set_ylabel('Unidades em Estoque')
+    ax1.legend(edgecolor='black')
+
+    # Gráfico 2: Evolução do Lucro (O Trade-off)
+    ax2.plot(ticks, lucro_control, color='black', linestyle='-', linewidth=2, label='Lucro Cenario Tradicional')
+    ax2.plot(ticks, lucro_discount, color='black', linestyle='--', linewidth=2, label='Lucro Cenario Multiagente')
+    ax2.set_title('Lucro Diario Liquido', fontweight='bold')
+    ax2.set_xlabel('Dias (Ticks de Simulacao)')
+    ax2.set_ylabel('Lucro (R$)')
+    ax2.legend(edgecolor='black')
+
+    # Linha zero absoluta (preta) para marcar a área de prejuízo no eixo Y do gráfico 2
+    ax2.axhline(0, color='black', linestyle='-', linewidth=1)
+
+    plt.tight_layout()
+    plt.savefig('graficos_resultados.png', dpi=300, bbox_inches='tight')
+    print("Gráfico 'graficos_resultados.png' gerado com sucesso.")
+
+if __name__ == "__main__":
+    plot_black_and_white()
+
+========================================
+FILE: .\grafico_control.db
+========================================
+
+
+
+========================================
+FILE: .\grafico_discount.db
+========================================
+
+
+
+========================================
+FILE: .\LICENSE
+========================================
+
+MIT License
+
+Copyright (c) 2026 Djalma Júnior
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+========================================
+FILE: .\pyproject.toml
+========================================
+
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "waste-minimization-mesa"
+version = "0.1.0"
+description = "Mesa simulation for waste minimization in retail"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "mesa>=3.0",
+  "sqlmodel>=0.0.22",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+========================================
+FILE: .\README.md
+========================================
+
+# waste-minimization-mesa
+
+Base executável de uma simulação de minimização de desperdício no varejo usando Mesa, SQLite e agentes especializados para análise, fornecedor, precificação e consumo.
+
+## Estrutura
+
+- `src/waste_minimization_mesa/db.py`: camada SQLite com o produto do catálogo.
+- `src/waste_minimization_mesa/agents.py`: agentes de análise, fornecedor, inventário, precificação e consumidor.
+- `src/waste_minimization_mesa/model.py`: orquestra os ticks diários da simulação.
+- `src/waste_minimization_mesa/cli.py`: interface de linha de comando.
+
+## Como rodar
+
+```bash
+pip install -e .
+python -m waste_minimization_mesa --days 10
+```
+
+Se você preferir instalar as dependências diretamente:
+
+```bash
+pip install -r requirements.txt
+python -m waste_minimization_mesa --days 10
+```
+
+O agente de precificação usa uma heurística orientada a risco, custo e margem mínima. Isso deixa os experimentos mais reprodutíveis e evita depender de um LLM local.
+
+Para comparar os cenários sem desconto e com desconto:
+
+```bash
+python -m waste_minimization_mesa --compare --days 10
+```
+
+Por padrão, a simulação faz reposição orientada por demanda. Você pode ajustar isso com `--restock-strategy`, `--restock-interval` e `--restock-threshold`.
+
+
+========================================
+FILE: .\requirements.txt
+========================================
+
+mesa>=3.0
+sqlmodel>=0.0.22
+
+
+========================================
+FILE: .\sem_desconto.db
+========================================
+
+
+
+========================================
+FILE: .\src\waste_minimization_mesa\agents.py
+========================================
+
+"""Mesa agents for inventory, pricing, supplier, analysis, and consumer behavior."""
+
+from __future__ import annotations
+
+import random
+from dataclasses import dataclass
+
+try:
+    import mesa
+except Exception:  # pragma: no cover - keep the simulation runnable in broken Mesa installs
+    mesa = None
+
+from sqlmodel import Session, select
+
+from .db import Product
+
+
+AgentBase = mesa.Agent if mesa is not None else object  # type: ignore[attr-defined]
+
+
+class CompatAgent(AgentBase):  # type: ignore[misc]
+    """Compatibility wrapper for different Mesa agent signatures."""
+
+    def __init__(self, unique_id, model):
+        if mesa is None:
+            self.unique_id = unique_id
+            self.model = model
+            return
+
+        try:
+            super().__init__(unique_id, model)
+        except TypeError:
+            super().__init__(model)
+            self.unique_id = unique_id
+
+
+@dataclass(frozen=True)
+class ConsumerProfile:
+    """Behavioral profile used to diversify consumer demand."""
+
+    name: str
+    base_purchase_probability: float
+    discount_sensitivity: float
+    category_preferences: dict[str, float]
+    impulse: float = 0.0
+
+
+class AnalysisAgent(CompatAgent):
+    """Publishes daily operational indicators for the other agents."""
+
+    def step(self):
+        self.model.market_snapshot = self.model.collect_market_snapshot()
+        self.model.sales_window = self.model.collect_sales_window(days=5)
+
+
+class SupplierAgent(CompatAgent):
+    """Replenishes inventory using recent sales, stock, and freshness signals."""
+
+    def step(self):
+        if not self.model.restock_enabled:
+            return
+
+        if not self.model.should_restock_today():
+            return
+
+        restock_plan = self.model.build_restock_plan()
+        if not restock_plan:
+            return
+
+        with Session(self.model.engine) as session:
+            session.add_all(Product(**item) for item in restock_plan)
+            session.commit()
+
+        self.model.restock_events += 1
+        print(
+            f"\n[Fornecedor] Novos lotes chegaram no tick {self.model.current_tick} "
+            f"(pedido #{self.model.restock_events})."
+        )
+
+
+class InventoryAgent(CompatAgent):
+    """Identifies critical products and shares them with pricing."""
+
+    def step(self):
+        with Session(self.model.engine) as session:
+            statement = select(Product).where(
+                Product.rsl <= self.model.critical_rsl,
+                Product.estoque > 0,
+            )
+            critical_products = session.exec(statement).all()
+            self.model.critical_product_ids = [product.id for product in critical_products if product.id is not None]
+
+
+class PricingAgent(CompatAgent):
+    """Applies a bounded, risk-based discount policy."""
+
+    def _minimum_price(self, product: Product) -> float:
+        return round(product.custo_unitario * (1 + self.model.minimum_margin), 2)
+
+    def _risk_score(self, product: Product) -> float:
+        snapshot = self.model.market_snapshot or self.model.collect_market_snapshot()
+        window_sales = self.model.sales_window.get(product.nome, 0)
+
+        avg_stock = max(float(snapshot["average_stock"]), 1.0)
+        stock_pressure = min(1.0, product.estoque / max(avg_stock * 1.5, 1.0))
+        freshness_pressure = max(0.0, 1.0 - (product.rsl / max(self.model.rsl_reference, 1)))
+        demand_pressure = max(0.0, 1.0 - (window_sales / max(window_sales + product.estoque, 1)))
+
+        risk = 100.0 * (
+            0.30 * stock_pressure
+            + 0.45 * freshness_pressure
+            + 0.25 * demand_pressure
+        )
+        return max(0.0, min(100.0, risk))
+
+    def _discount_rate(self, risk: float) -> float:
+        if risk < 20:
+            return 0.0
+        if risk < 40:
+            return 0.1
+        if risk < 60:
+            return 0.2
+        if risk < 80:
+            return 0.3
+        return 0.40
+
+    def _target_price(self, product: Product) -> float:
+        risk = self._risk_score(product)
+        discount_rate = self._discount_rate(risk)
+        floor_price = self._minimum_price(product)
+        target_price = product.preco_original * (1 - discount_rate)
+        return round(max(floor_price, target_price), 2)
+
+    def evaluate_discount(self, product_id: int) -> None:
+        if not self.model.pricing_enabled:
+            return
+
+        with Session(self.model.engine) as session:
+            product = session.get(Product, product_id)
+            if product is None:
+                return
+
+            target_price = self._target_price(product)
+            if target_price >= product.preco_atual:
+                return
+
+            product.preco_atual = target_price
+            session.add(product)
+            session.commit()
+
+    def step(self):
+        if not self.model.pricing_enabled:
+            return
+
+        targets = list(self.model.critical_product_ids)
+        if not targets and self.model.fallback_pricing_enabled:
+            with Session(self.model.engine) as session:
+                products = session.exec(select(Product).where(Product.estoque > 0)).all()
+                targets = [product.id for product in products if product.id is not None]
+
+        for product_id in targets:
+            self.evaluate_discount(product_id)
+
+
+class ConsumerAgent(CompatAgent):
+    """Simulates a consumer archetype with distinct purchase preferences."""
+
+    def __init__(self, unique_id, model, profile: ConsumerProfile):
+        super().__init__(unique_id, model)
+        self.profile = profile
+
+    def _score_product(self, product: Product) -> float:
+        discount_ratio = 0.0
+        if product.preco_atual < product.preco_original:
+            discount_ratio = 1.0 - (product.preco_atual / max(product.preco_original, 0.01))
+
+        freshness = 1.0 / max(product.rsl + 1, 1)
+        category_bias = self.profile.category_preferences.get(product.categoria, 1.0)
+        price_signal = max(0.15, 1.0 - (product.preco_atual / max(product.preco_original, 0.01)))
+
+        score = self.profile.base_purchase_probability
+        score += discount_ratio * self.profile.discount_sensitivity
+        score += freshness * 0.20
+        score += price_signal * 0.20
+        score += self.profile.impulse
+        score *= category_bias
+        return max(0.01, score)
+
+    def step(self):
+        with Session(self.model.engine) as session:
+            products = session.exec(select(Product).where(Product.estoque > 0)).all()
+            if not products:
+                return
+
+            weights = [self._score_product(product) for product in products]
+            buy_probability = min(0.95, sum(weights) / len(weights))
+
+            if self.model.rng.random() >= buy_probability:
+                return
+
+            product = self.model.rng.choices(products, weights=weights, k=1)[0]
+            product.estoque -= 1
+            self.model.record_sale(product)
+            session.add(product)
+            session.commit()
+
+
+def build_consumer_profiles() -> list[ConsumerProfile]:
+    """Return the default set of heterogeneous consumer archetypes."""
+
+    return [
+        ConsumerProfile(
+            name="economico",
+            base_purchase_probability=0.12,
+            discount_sensitivity=0.70,
+            category_preferences={"padaria": 1.05, "perecivel": 1.20, "saudavel": 1.10},
+        ),
+        ConsumerProfile(
+            name="tradicional",
+            base_purchase_probability=0.10,
+            discount_sensitivity=0.35,
+            category_preferences={"padaria": 1.00, "perecivel": 1.00, "saudavel": 1.00},
+        ),
+        ConsumerProfile(
+            name="premium",
+            base_purchase_probability=0.14,
+            discount_sensitivity=0.12,
+            category_preferences={"padaria": 0.90, "perecivel": 0.95, "saudavel": 1.05},
+        ),
+        ConsumerProfile(
+            name="saudavel",
+            base_purchase_probability=0.11,
+            discount_sensitivity=0.30,
+            category_preferences={"padaria": 0.85, "perecivel": 0.95, "saudavel": 1.40},
+        ),
+        ConsumerProfile(
+            name="impulsivo",
+            base_purchase_probability=0.09,
+            discount_sensitivity=0.18,
+            category_preferences={"padaria": 1.10, "perecivel": 1.05, "saudavel": 0.95},
+            impulse=0.12,
+        ),
+    ]
+
+
+========================================
+FILE: .\src\waste_minimization_mesa\cli.py
+========================================
+
+"""Command line entry point for the simulation."""
+
+from __future__ import annotations
+
+import argparse
+from pathlib import Path
+
+from .model import RetailModel, run_scenario, summarize_metrics
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Run the waste minimization simulation.")
+    parser.add_argument("--days", type=int, default=10, help="Number of simulated days.")
+    parser.add_argument("--consumers", type=int, default=10, help="Number of consumer agents.")
+    parser.add_argument(
+        "--restock-strategy",
+        choices=("fixed", "demand"),
+        default="demand",
+        help="How the supplier decides replenishment.",
+    )
+    parser.add_argument(
+        "--restock-interval",
+        type=int,
+        default=5,
+        help="Days between supplier reviews.",
+    )
+    parser.add_argument(
+        "--restock-threshold",
+        type=int,
+        default=15,
+        help="Total stock level that triggers demand-based replenishment.",
+    )
+    parser.add_argument(
+        "--compare",
+        action="store_true",
+        help="Run the control and discounted scenarios side by side.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed used for reproducible comparisons.",
+    )
+    return parser
+
+
+def _db_url_for(name: str) -> str:
+    path = Path.cwd() / f"{name}.db"
+    return f"sqlite:///{path.as_posix()}"
+
+
+def _print_summary(title: str, summary: dict[str, float | int]) -> None:
+    print(title)
+    print(
+        "  "
+        f"stock_final={summary['total_stock']} "
+        f"vendidos={summary['sold_units']} "
+        f"receita={summary['revenue']:.2f} "
+        f"desperdicio_unidades={summary['waste_units']} "
+        f"desperdicio_valor={summary['waste_value']:.2f} "
+        f"lucro={summary['profit']:.2f} "
+        f"margem={summary['margin']:.4f}"
+    )
+
+
+def main() -> int:
+    parser = build_parser()
+    args = parser.parse_args()
+
+    if args.compare:
+        control = run_scenario(
+            name="sem_desconto",
+            days=args.days,
+            db_url=_db_url_for("sem_desconto"),
+            num_consumers=args.consumers,
+            pricing_enabled=False,
+            restock_strategy=args.restock_strategy,
+            restock_interval=args.restock_interval,
+            restock_threshold=args.restock_threshold,
+            seed=args.seed,
+        )
+        discounted = run_scenario(
+            name="com_desconto",
+            days=args.days,
+            db_url=_db_url_for("com_desconto"),
+            num_consumers=args.consumers,
+            pricing_enabled=True,
+            fallback_pricing_enabled=True,
+            minimum_margin=0.08,
+            rsl_reference=8,
+            restock_strategy=args.restock_strategy,
+            restock_interval=args.restock_interval,
+            restock_threshold=args.restock_threshold,
+            seed=args.seed,
+        )
+
+        print("tick | estoque_control | estoque_desconto | receita_control | receita_desconto | lucro_control | lucro_desconto")
+        for control_item, discount_item in zip(control.metrics, discounted.metrics):
+            print(
+                f"{control_item.tick:>4} | "
+                f"{control_item.total_stock:>15} | "
+                f"{discount_item.total_stock:>16} | "
+                f"{control_item.revenue:>14.2f} | "
+                f"{discount_item.revenue:>15.2f} | "
+                f"{control_item.profit:>12.2f} | "
+                f"{discount_item.profit:>13.2f}"
+            )
+
+        print()
+        _print_summary("Cenário sem desconto", summarize_metrics(control.metrics))
+        _print_summary("Cenário com desconto", summarize_metrics(discounted.metrics))
+        return 0
+
+    model = RetailModel(
+        db_url=_db_url_for("varejo_simulacao"),
+        num_consumers=args.consumers,
+        restock_strategy=args.restock_strategy,
+        restock_interval=args.restock_interval,
+        restock_threshold=args.restock_threshold,
+        seed=args.seed,
+    )
+    metrics = model.run(days=args.days)
+
+    for item in metrics:
+        print(
+            f"tick={item.tick} total_stock={item.total_stock} expired_items={item.expired_items} "
+            f"sold_units={item.sold_units} revenue={item.revenue:.2f} waste_units={item.waste_units} "
+            f"waste_value={item.waste_value:.2f} profit={item.profit:.2f} margin={item.margin:.4f}"
+        )
+
+    print()
+    _print_summary("Resumo", summarize_metrics(metrics))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+========================================
+FILE: .\src\waste_minimization_mesa\db.py
+========================================
+
+"""SQLite persistence layer for the retail simulation."""
+
+from __future__ import annotations
+
+from typing import Iterable
+
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+
+
+class Product(SQLModel, table=True):
+    """Product stored in the simulated ERP."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    nome: str
+    categoria: str = "outros"
+    rsl: int
+    preco_original: float
+    preco_atual: float
+    custo_unitario: float
+    estoque: int
+
+
+def create_database(db_url: str = "sqlite:///varejo_simulacao.db", reset: bool = True):
+    """Create the SQLite engine and initialize tables."""
+
+    engine = create_engine(db_url)
+    if reset:
+        SQLModel.metadata.drop_all(engine)
+    SQLModel.metadata.create_all(engine)
+    return engine
+
+
+def seed_products(engine, products: Iterable[dict] | None = None) -> None:
+    """Insert a small starter catalog when the database is empty."""
+
+    default_products = products or [
+        {
+            "nome": "Iogurte natural",
+            "categoria": "perecivel",
+            "rsl": 3,
+            "preco_original": 6.90,
+            "preco_atual": 6.90,
+            "custo_unitario": 4.15,
+            "estoque": 24,
+        },
+        {
+            "nome": "Pao de forma",
+            "categoria": "padaria",
+            "rsl": 5,
+            "preco_original": 8.50,
+            "preco_atual": 8.50,
+            "custo_unitario": 5.10,
+            "estoque": 18,
+        },
+        {
+            "nome": "Salada pronta",
+            "categoria": "saudavel",
+            "rsl": 2,
+            "preco_original": 14.90,
+            "preco_atual": 14.90,
+            "custo_unitario": 8.95,
+            "estoque": 12,
+        },
+    ]
+
+    with Session(engine) as session:
+        existing = session.exec(select(Product)).first()
+        if existing is not None:
+            return
+
+        session.add_all(Product(**item) for item in default_products)
+        session.commit()
+
+
+========================================
+FILE: .\src\waste_minimization_mesa\model.py
+========================================
+
+"""Retail simulation model."""
+
+from __future__ import annotations
+
+from collections import Counter, deque
+from dataclasses import dataclass
+from typing import Deque
+import random
+
+try:
+    import mesa
+except Exception:  # pragma: no cover - keep the simulation runnable in broken Mesa installs
+    mesa = None
+
+from sqlmodel import Session, select
+
+from .agents import (
+    AnalysisAgent,
+    ConsumerAgent,
+    InventoryAgent,
+    PricingAgent,
+    SupplierAgent,
+    build_consumer_profiles,
+)
+from .db import Product, create_database, seed_products
+
+
+DEFAULT_RESTOCK_CATALOG = (
+    {
+        "nome": "Iogurte natural",
+        "categoria": "perecivel",
+        "rsl": 7,
+        "preco_original": 6.90,
+        "preco_atual": 6.90,
+        "custo_unitario": 4.15,
+        "estoque": 20,
+    },
+    {
+        "nome": "Leite integral",
+        "categoria": "perecivel",
+        "rsl": 8,
+        "preco_original": 5.00,
+        "preco_atual": 5.00,
+        "custo_unitario": 3.00,
+        "estoque": 25,
+    },
+    {
+        "nome": "Queijo Minas Frescal",
+        "categoria": "perecivel",
+        "rsl": 5,
+        "preco_original": 25.00,
+        "preco_atual": 25.00,
+        "custo_unitario": 15.00,
+        "estoque": 15,
+    },
+    {
+        "nome": "Frango Desossado",
+        "categoria": "perecivel",
+        "rsl": 3,
+        "preco_original": 18.00,
+        "preco_atual": 18.00,
+        "custo_unitario": 10.80,
+        "estoque": 10,
+    },
+    {
+        "nome": "Ovos Grandes",
+        "categoria": "perecivel",
+        "rsl": 14,
+        "preco_original": 10.00,
+        "preco_atual": 10.00,
+        "custo_unitario": 6.00,
+        "estoque": 30,
+    },
+    {
+        "nome": "Pao de forma",
+        "categoria": "padaria",
+        "rsl": 10,
+        "preco_original": 8.50,
+        "preco_atual": 8.50,
+        "custo_unitario": 5.10,
+        "estoque": 15,
+    },
+    {
+        "nome": "Bolo de Cenoura",
+        "categoria": "padaria",
+        "rsl": 3,
+        "preco_original": 12.00,
+        "preco_atual": 12.00,
+        "custo_unitario": 7.20,
+        "estoque": 10,
+    },
+    {
+        "nome": "Sonho de Creme",
+        "categoria": "padaria",
+        "rsl": 2,
+        "preco_original": 7.50,
+        "preco_atual": 7.50,
+        "custo_unitario": 4.50,
+        "estoque": 8,
+    },
+    {
+        "nome": "Broa de Milho",
+        "categoria": "padaria",
+        "rsl": 4,
+        "preco_original": 6.00,
+        "preco_atual": 6.00,
+        "custo_unitario": 3.60,
+        "estoque": 12,
+    },
+    {
+        "nome": "Pao Integral",
+        "categoria": "padaria",
+        "rsl": 8,
+        "preco_original": 9.90,
+        "preco_atual": 9.90,
+        "custo_unitario": 5.95,
+        "estoque": 20,
+    },
+    {
+        "nome": "Salada pronta",
+        "categoria": "saudavel",
+        "rsl": 4,
+        "preco_original": 14.90,
+        "preco_atual": 14.90,
+        "custo_unitario": 8.95,
+        "estoque": 10,
+    },
+    {
+        "nome": "Suco verde",
+        "categoria": "saudavel",
+        "rsl": 5,
+        "preco_original": 9.90,
+        "preco_atual": 9.90,
+        "custo_unitario": 5.95,
+        "estoque": 12,
+    },
+    {
+        "nome": "Mix de Castanhas",
+        "categoria": "saudavel",
+        "rsl": 60,
+        "preco_original": 19.90,
+        "preco_atual": 19.90,
+        "custo_unitario": 11.95,
+        "estoque": 20,
+    },
+    {
+        "nome": "Barra de Cereal Integral",
+        "categoria": "saudavel",
+        "rsl": 90,
+        "preco_original": 4.50,
+        "preco_atual": 4.50,
+        "custo_unitario": 2.70,
+        "estoque": 25,
+    },
+    {
+        "nome": "Água de Coco",
+        "categoria": "saudavel",
+        "rsl": 30,
+        "preco_original": 6.00,
+        "preco_atual": 6.00,
+        "custo_unitario": 3.60,
+        "estoque": 18,
+    },
+)
+
+
+@dataclass
+class SimulationMetrics:
+    """Simple in-memory metrics for each tick."""
+
+    tick: int
+    total_stock: int
+    expired_items: int
+    sold_units: int
+    revenue: float
+    waste_units: int
+    waste_value: float
+    profit: float
+    margin: float
+
+
+@dataclass
+class ScenarioResult:
+    """Compact summary for comparing scenarios."""
+
+    name: str
+    metrics: list[SimulationMetrics]
+
+    @property
+    def final(self) -> SimulationMetrics:
+        return self.metrics[-1]
+
+
+ModelBase = mesa.Model if mesa is not None else object  # type: ignore[attr-defined]
+
+
+class RetailModel(ModelBase):  # type: ignore[misc]
+    """Orchestrates daily simulation steps."""
+
+    def __init__(
+        self,
+        db_url: str = "sqlite:///varejo_simulacao.db",
+        num_consumers: int = 10,
+        critical_rsl: int = 3,
+        minimum_margin: float = 0.10,
+        rsl_reference: int = 6,
+        pricing_enabled: bool = True,
+        fallback_pricing_enabled: bool = False,
+        reset_database: bool = True,
+        restock_strategy: str = "demand",
+        restock_interval: int = 5,
+        restock_threshold: int = 15,
+        seed: int | None = None,
+    ):
+        if mesa is not None:
+            super().__init__()
+
+        self.rng = random.Random(seed)
+        self.engine = create_database(db_url, reset=reset_database)
+        seed_products(self.engine)
+
+        self.critical_rsl = critical_rsl
+        self.minimum_margin = minimum_margin
+        self.rsl_reference = rsl_reference
+        self.pricing_enabled = pricing_enabled
+        self.fallback_pricing_enabled = fallback_pricing_enabled
+        self.restock_strategy = restock_strategy
+        self.restock_interval = restock_interval
+        self.restock_threshold = restock_threshold
+        self.restock_enabled = True
+        self.current_tick = 0
+        self.restock_events = 0
+        self.market_snapshot: dict[str, float | int] = {}
+        self.sales_window: dict[str, int] = {}
+        self.critical_product_ids: list[int] = []
+        self._daily_sales = Counter()
+        self._sales_history: Deque[Counter] = deque(maxlen=5)
+        self._last_expired_units = 0
+        self._last_sold_units = 0
+        self._last_revenue = 0.0
+        self._last_sold_cost = 0.0
+        self._last_waste_units = 0
+        self._last_waste_value = 0.0
+
+        self.analysis_agent = AnalysisAgent(1, self)
+        self.supplier_agent = SupplierAgent(2, self)
+        self.inventory_agent = InventoryAgent(3, self)
+        self.pricing_agent = PricingAgent(4, self)
+        self.consumer_agents = self._build_consumers(num_consumers)
+        self.agent_sequence = [
+            self.analysis_agent,
+            self.supplier_agent,
+            self.inventory_agent,
+            self.pricing_agent,
+            *self.consumer_agents,
+        ]
+        self.metrics: list[SimulationMetrics] = []
+
+    def _build_consumers(self, num_consumers: int) -> list[ConsumerAgent]:
+        profiles = build_consumer_profiles()
+        consumers: list[ConsumerAgent] = []
+        for index in range(num_consumers):
+            profile = profiles[index % len(profiles)]
+            consumers.append(ConsumerAgent(5 + index, self, profile))
+        return consumers
+
+    def collect_market_snapshot(self) -> dict[str, float | int]:
+        with Session(self.engine) as session:
+            products = session.exec(select(Product).where(Product.estoque > 0)).all()
+
+        if not products:
+            return {
+                "total_stock": 0,
+                "average_stock": 0.0,
+                "average_rsl": 0.0,
+                "average_price": 0.0,
+                "product_count": 0,
+            }
+
+        total_stock = sum(product.estoque for product in products)
+        average_stock = total_stock / len(products)
+        average_rsl = sum(product.rsl for product in products) / len(products)
+        average_price = sum(product.preco_atual for product in products) / len(products)
+
+        return {
+            "total_stock": total_stock,
+            "average_stock": round(average_stock, 2),
+            "average_rsl": round(average_rsl, 2),
+            "average_price": round(average_price, 2),
+            "product_count": len(products),
+        }
+
+    def collect_sales_window(self, days: int = 5) -> dict[str, int]:
+        # Converte o deque para list para permitir o slicing [-days:]
+        history_list = list(self._sales_history)
+        window = history_list[-days:] if days > 0 else history_list
+        
+        sales = Counter()
+        for daily_sales in window:
+            sales.update(daily_sales)
+        return dict(sales)
+
+    def _current_stock_by_name(self) -> dict[str, int]:
+        with Session(self.engine) as session:
+            products = session.exec(select(Product).where(Product.estoque > 0)).all()
+
+        stock_by_name: dict[str, int] = {}
+        for product in products:
+            stock_by_name[product.nome] = stock_by_name.get(product.nome, 0) + product.estoque
+        return stock_by_name
+
+    def should_restock_today(self) -> bool:
+        if self.current_tick <= 0:
+            return False
+
+        due_by_interval = self.current_tick % max(self.restock_interval, 1) == 0
+        if self.restock_strategy == "fixed":
+            return due_by_interval
+
+        snapshot = self.market_snapshot or self.collect_market_snapshot()
+        low_stock = int(snapshot["total_stock"]) <= self.restock_threshold
+        return due_by_interval or low_stock
+
+    def build_restock_plan(self) -> list[dict]:
+        snapshot = self.market_snapshot or self.collect_market_snapshot()
+        sales_window = self.sales_window or self.collect_sales_window(days=5)
+        stock_by_name = self._current_stock_by_name()
+        average_rsl = float(snapshot["average_rsl"])
+        freshness_gap = max(0.0, float(self.rsl_reference) - average_rsl)
+        demand_factor = 1.0 if self.restock_strategy == "fixed" else 1.6
+        low_stock_bonus = 1.0 if int(snapshot["total_stock"]) <= self.restock_threshold else 0.0
+        restock_scale = 1.0
+
+        if self.fallback_pricing_enabled:
+            # When discounting is active, avoid over-ordering because markdowns already help move stock.
+            demand_factor = 1.15 if self.restock_strategy != "fixed" else 1.0
+            low_stock_bonus = 0.5 if low_stock_bonus else 0.0
+            restock_scale = 0.75
+
+        plan: list[dict] = []
+        for template in DEFAULT_RESTOCK_CATALOG:
+            recent_sales = sales_window.get(template["nome"], 0)
+            current_stock = stock_by_name.get(template["nome"], 0)
+            base_quantity = int(template["estoque"])
+
+            if self.restock_strategy == "fixed":
+                quantity = base_quantity
+            else:
+                target = base_quantity
+                target += int(recent_sales * 2 * demand_factor)
+                target += int(freshness_gap * 1.5)
+                target += int(low_stock_bonus * base_quantity * 0.5)
+                target = max(target, base_quantity)
+                quantity = max(0, int((target - current_stock) * restock_scale))
+
+            if quantity <= 0:
+                continue
+
+            plan.append(
+                {
+                    "nome": template["nome"],
+                    "categoria": template["categoria"],
+                    "rsl": int(template["rsl"] + max(0, round(freshness_gap))),
+                    "preco_original": template["preco_original"],
+                    "preco_atual": template["preco_original"],
+                    "custo_unitario": template["custo_unitario"],
+                    "estoque": quantity,
+                }
+            )
+
+        return plan
+
+    def record_sale(self, product: Product) -> None:
+        self._last_sold_units += 1
+        self._last_revenue += product.preco_atual
+        self._last_sold_cost += product.custo_unitario
+        self._daily_sales[product.nome] += 1
+
+    def record_waste(self, product: Product) -> None:
+        self._last_waste_units += 1
+        self._last_waste_value += product.custo_unitario
+
+    def _age_products(self) -> int:
+        expired = 0
+        with Session(self.engine) as session:
+            products = session.exec(select(Product).where(Product.estoque > 0)).all()
+
+            for product in products:
+                product.rsl -= 1
+                if product.rsl < 0:
+                    self.record_waste(product)
+                    product.estoque = 0
+                    expired += 1
+                session.add(product)
+
+            session.commit()
+
+        return expired
+
+    def total_stock(self) -> int:
+        with Session(self.engine) as session:
+            return sum(product.estoque for product in session.exec(select(Product)).all())
+
+    def step(self):
+        self._last_expired_units = 0
+        self._last_sold_units = 0
+        self._last_revenue = 0.0
+        self._last_sold_cost = 0.0
+        self._last_waste_units = 0
+        self._last_waste_value = 0.0
+
+        expired = self._age_products()
+        self._last_expired_units = expired
+
+        self.analysis_agent.step()
+        self.supplier_agent.step()
+        self.inventory_agent.step()
+        self.pricing_agent.step()
+
+        for agent in self.consumer_agents:
+            agent.step()
+
+        total_stock = self.total_stock()
+        gross_profit = self._last_revenue - self._last_sold_cost - self._last_waste_value
+        margin = (gross_profit / self._last_revenue) if self._last_revenue > 0 else 0.0
+
+        self.metrics.append(
+            SimulationMetrics(
+                tick=self.current_tick,
+                total_stock=total_stock,
+                expired_items=expired,
+                sold_units=self._last_sold_units,
+                revenue=round(self._last_revenue, 2),
+                waste_units=self._last_waste_units,
+                waste_value=round(self._last_waste_value, 2),
+                profit=round(gross_profit, 2),
+                margin=round(margin, 4),
+            )
+        )
+
+        self._sales_history.append(self._daily_sales.copy())
+        self._daily_sales.clear()
+        self.market_snapshot = self.collect_market_snapshot()
+        self.sales_window = self.collect_sales_window(days=5)
+        self.current_tick += 1
+
+    def run(self, days: int = 10):
+        for _ in range(days):
+            self.step()
+        return self.metrics
+
+
+def summarize_metrics(metrics: list[SimulationMetrics]) -> dict[str, float | int]:
+    """Aggregate the full run into a single summary."""
+
+    if not metrics:
+        return {
+            "ticks": 0,
+            "total_stock": 0,
+            "expired_items": 0,
+            "sold_units": 0,
+            "revenue": 0.0,
+            "waste_units": 0,
+            "waste_value": 0.0,
+            "profit": 0.0,
+            "margin": 0.0,
+        }
+
+    final = metrics[-1]
+    total_revenue = sum(item.revenue for item in metrics)
+    total_profit = sum(item.profit for item in metrics)
+    return {
+        "ticks": len(metrics),
+        "total_stock": final.total_stock,
+        "expired_items": sum(item.expired_items for item in metrics),
+        "sold_units": sum(item.sold_units for item in metrics),
+        "revenue": round(total_revenue, 2),
+        "waste_units": sum(item.waste_units for item in metrics),
+        "waste_value": round(sum(item.waste_value for item in metrics), 2),
+        "profit": round(total_profit, 2),
+        "margin": round((total_profit / total_revenue) if total_revenue > 0 else 0.0, 4),
+    }
+
+
+def run_scenario(
+    *,
+    name: str,
+    days: int,
+    db_url: str,
+    num_consumers: int,
+    pricing_enabled: bool,
+    fallback_pricing_enabled: bool = False,
+    minimum_margin: float = 0.10,
+    rsl_reference: int = 6,
+    seed: int | None = None,
+    restock_strategy: str = "demand",
+    restock_interval: int = 5,
+    restock_threshold: int = 15,
+) -> ScenarioResult:
+    """Run one scenario with a reproducible random seed."""
+
+    model = RetailModel(
+        db_url=db_url,
+        num_consumers=num_consumers,
+        minimum_margin=minimum_margin,
+        rsl_reference=rsl_reference,
+        pricing_enabled=pricing_enabled,
+        fallback_pricing_enabled=fallback_pricing_enabled,
+        restock_strategy=restock_strategy,
+        restock_interval=restock_interval,
+        restock_threshold=restock_threshold,
+        seed=seed,
+    )
+    metrics = model.run(days=days)
+    return ScenarioResult(name=name, metrics=metrics)
+
+
+========================================
+FILE: .\src\waste_minimization_mesa\__init__.py
+========================================
+
+"""Waste minimization simulation package."""
+
+from .agents import (
+    AnalysisAgent,
+    ConsumerAgent,
+    ConsumerProfile,
+    InventoryAgent,
+    PricingAgent,
+    SupplierAgent,
+    build_consumer_profiles,
+)
+from .db import Product, create_database, seed_products
+from .model import RetailModel, ScenarioResult, SimulationMetrics, run_scenario, summarize_metrics
+
+__all__ = [
+    "AnalysisAgent",
+    "ConsumerAgent",
+    "ConsumerProfile",
+    "InventoryAgent",
+    "PricingAgent",
+    "SupplierAgent",
+    "Product",
+    "RetailModel",
+    "ScenarioResult",
+    "SimulationMetrics",
+    "create_database",
+    "seed_products",
+    "build_consumer_profiles",
+    "run_scenario",
+    "summarize_metrics",
+]
+
+
+========================================
+FILE: .\src\waste_minimization_mesa\__main__.py
+========================================
+
+"""Run the simulation with `python -m waste_minimization_mesa`."""
+
+from .cli import main
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+
+========================================
+FILE: .\src\waste_minimization_mesa.egg-info\dependency_links.txt
+========================================
+
+
+
+
+========================================
+FILE: .\src\waste_minimization_mesa.egg-info\PKG-INFO
+========================================
+
+Metadata-Version: 2.4
+Name: waste-minimization-mesa
+Version: 0.1.0
+Summary: Mesa simulation for waste minimization in retail
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: mesa>=3.0
+Requires-Dist: requests>=2.32
+Requires-Dist: sqlmodel>=0.0.22
+Dynamic: license-file
+
+# waste-minimization-mesa
+
+Base executável de uma simulação de minimização de desperdício no varejo usando Mesa, SQLite e um agente de precificação com Ollama.
+
+## Estrutura
+
+- `src/waste_minimization_mesa/db.py`: camada SQLite com o produto do catálogo.
+- `src/waste_minimization_mesa/agents.py`: agentes de inventário, precificação e consumidor.
+- `src/waste_minimization_mesa/model.py`: orquestra os ticks diários da simulação.
+- `src/waste_minimization_mesa/cli.py`: interface de linha de comando.
+
+## Como rodar
+
+```bash
+pip install -e .
+python -m waste_minimization_mesa --days 10
+```
+
+Se você preferir instalar as dependências diretamente:
+
+```bash
+pip install -r requirements.txt
+python -m waste_minimization_mesa --days 10
+```
+
+Se o Ollama não estiver disponível, o sistema usa um fallback heurístico de desconto para manter a simulação funcionando.
+
+
+========================================
+FILE: .\src\waste_minimization_mesa.egg-info\requires.txt
+========================================
+
+mesa>=3.0
+requests>=2.32
+sqlmodel>=0.0.22
+
+
+========================================
+FILE: .\src\waste_minimization_mesa.egg-info\SOURCES.txt
+========================================
+
+LICENSE
+README.md
+pyproject.toml
+src/waste_minimization_mesa/__init__.py
+src/waste_minimization_mesa/__main__.py
+src/waste_minimization_mesa/agents.py
+src/waste_minimization_mesa/cli.py
+src/waste_minimization_mesa/db.py
+src/waste_minimization_mesa/model.py
+src/waste_minimization_mesa.egg-info/PKG-INFO
+src/waste_minimization_mesa.egg-info/SOURCES.txt
+src/waste_minimization_mesa.egg-info/dependency_links.txt
+src/waste_minimization_mesa.egg-info/requires.txt
+src/waste_minimization_mesa.egg-info/top_level.txt
+
+========================================
+FILE: .\src\waste_minimization_mesa.egg-info\top_level.txt
+========================================
+
+waste_minimization_mesa

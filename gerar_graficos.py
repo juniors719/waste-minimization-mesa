@@ -5,11 +5,11 @@ def plot_black_and_white():
     # 1. Executa os cenários programaticamente
     control = run_scenario(
         name="Sem Desconto", days=30, db_url="sqlite:///grafico_control.db", 
-        num_consumers=10, pricing_enabled=False, seed=42
+        num_consumers=20, pricing_enabled=False, seed=42
     )
     discounted = run_scenario(
         name="Com Desconto", days=30, db_url="sqlite:///grafico_discount.db", 
-        num_consumers=10, pricing_enabled=True, seed=42
+        num_consumers=20, pricing_enabled=True, seed=42
     )
 
     # 2. Extrai os dados

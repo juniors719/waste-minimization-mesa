@@ -107,8 +107,8 @@ class PricingAgent(CompatAgent):
         demand_pressure = max(0.0, 1.0 - (window_sales / max(window_sales + product.estoque, 1)))
 
         risk = 100.0 * (
-            0.40 * stock_pressure
-            + 0.35 * freshness_pressure
+            0.30 * stock_pressure
+            + 0.45 * freshness_pressure
             + 0.25 * demand_pressure
         )
         return max(0.0, min(100.0, risk))
@@ -117,12 +117,12 @@ class PricingAgent(CompatAgent):
         if risk < 20:
             return 0.0
         if risk < 40:
-            return 0.05
+            return 0.1
         if risk < 60:
-            return 0.10
+            return 0.2
         if risk < 80:
-            return 0.20
-        return 0.30
+            return 0.3
+        return 0.40
 
     def _target_price(self, product: Product) -> float:
         risk = self._risk_score(product)
@@ -177,12 +177,20 @@ class ConsumerAgent(CompatAgent):
         freshness = 1.0 / max(product.rsl + 1, 1)
         category_bias = self.profile.category_preferences.get(product.categoria, 1.0)
         price_signal = max(0.15, 1.0 - (product.preco_atual / max(product.preco_original, 0.01)))
+        day_multiplier = self.model.daily_demand_multiplier() if hasattr(self.model, "daily_demand_multiplier") else 1.0
 
         score = self.profile.base_purchase_probability
-        score += discount_ratio * self.profile.discount_sensitivity
+        score += discount_ratio * (self.profile.discount_sensitivity + 0.55)
         score += freshness * 0.20
         score += price_signal * 0.20
         score += self.profile.impulse
+        if discount_ratio > 0.50:
+            score *= 2.5
+        elif discount_ratio > 0.30:
+            score *= 1.8
+        elif discount_ratio > 0.15:
+            score *= 1.2
+        score *= day_multiplier
         score *= category_bias
         return max(0.01, score)
 
@@ -211,33 +219,33 @@ def build_consumer_profiles() -> list[ConsumerProfile]:
     return [
         ConsumerProfile(
             name="economico",
-            base_purchase_probability=0.12,
-            discount_sensitivity=0.70,
+            base_purchase_probability=0.22,
+            discount_sensitivity=1.10,
             category_preferences={"padaria": 1.05, "perecivel": 1.20, "saudavel": 1.10},
         ),
         ConsumerProfile(
             name="tradicional",
-            base_purchase_probability=0.10,
-            discount_sensitivity=0.35,
+            base_purchase_probability=0.18,
+            discount_sensitivity=0.60,
             category_preferences={"padaria": 1.00, "perecivel": 1.00, "saudavel": 1.00},
         ),
         ConsumerProfile(
             name="premium",
-            base_purchase_probability=0.14,
-            discount_sensitivity=0.12,
+            base_purchase_probability=0.20,
+            discount_sensitivity=0.30,
             category_preferences={"padaria": 0.90, "perecivel": 0.95, "saudavel": 1.05},
         ),
         ConsumerProfile(
             name="saudavel",
-            base_purchase_probability=0.11,
-            discount_sensitivity=0.30,
+            base_purchase_probability=0.19,
+            discount_sensitivity=0.55,
             category_preferences={"padaria": 0.85, "perecivel": 0.95, "saudavel": 1.40},
         ),
         ConsumerProfile(
             name="impulsivo",
-            base_purchase_probability=0.09,
-            discount_sensitivity=0.18,
+            base_purchase_probability=0.16,
+            discount_sensitivity=0.45,
             category_preferences={"padaria": 1.10, "perecivel": 1.05, "saudavel": 0.95},
-            impulse=0.12,
+            impulse=0.18,
         ),
     ]
